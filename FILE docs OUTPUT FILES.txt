@@ -1,0 +1,125 @@
+FILE: docs/OUTPUT_FILES.md
+Output files
+
+output_dir/ is created automatically (e.g., output_rnaseq_wgcna/ or output_microarray_wgcna/).
+
+Below is a clean, reproducible output layout you can adopt for your repo/docs.
+(If your current implementation names files differently, consider aligning to this layout—it’s predictable for users.)
+
+Directory tree
+output_dir/
+├── logs/
+│   ├── run.log
+│   └── versions.txt
+├── preprocessing/
+│   ├── expression_filtered.csv
+│   ├── expression_normalized.csv
+│   └── sample_qc_pca_scores.csv
+├── differential_expression/
+│   ├── de_results_all_genes.csv
+│   ├── de_results_significant.csv
+│   └── plots/
+│       ├── volcano.png
+│       └── ma_plot.png
+├── wgcna/
+│   ├── soft_thresholding.csv
+│   ├── adjacency_power.txt
+│   ├── module_assignments.csv
+│   ├── module_eigengenes.csv
+│   ├── module_trait_correlations.csv
+│   ├── module_trait_pvalues.csv
+│   ├── hub_genes/
+│   │   ├── hub_genes_blue.csv
+│   │   └── hub_genes_brown.csv
+│   └── matrices/                 # optional (can be large)
+│       ├── adjacency.npz
+│       └── tom.npz
+└── figures/
+    ├── sample_clustering_dendrogram.pdf
+    ├── soft_threshold_fit.pdf
+    ├── gene_dendrogram_module_colors.pdf
+    ├── module_trait_heatmap.pdf
+    └── eigengene_network.pdf
+
+File-by-file description
+logs/
+
+run.log: step-by-step progress messages, warnings, and timing.
+
+versions.txt: Python + package versions to make runs reproducible.
+
+preprocessing/
+
+expression_filtered.csv: genes/features kept after basic filtering (low variance / low counts removed).
+
+expression_normalized.csv:
+
+RNA-seq: normalized + transformed expression used for WGCNA (e.g., VST/log-like transformation).
+
+Microarray: quantile normalized (if enabled) and log-scaled (if applicable).
+
+sample_qc_pca_scores.csv: PCA coordinates per sample for QC.
+
+differential_expression/
+
+de_results_all_genes.csv: full DE table, one row per gene.
+
+de_results_significant.csv: subset with (for example) padj < 0.05.
+
+plots/volcano.png, plots/ma_plot.png: standard DE visualizations.
+
+Typical columns for DE results (DESeq2-style):
+
+gene
+
+baseMean
+
+log2FoldChange
+
+lfcSE
+
+stat
+
+pvalue
+
+padj
+
+wgcna/
+
+soft_thresholding.csv: evaluated powers with scale-free fit and mean connectivity.
+
+adjacency_power.txt: selected soft-threshold power.
+
+module_assignments.csv: gene → module label + membership stats.
+
+Typical columns:
+
+gene
+
+module (e.g., blue, brown, turquoise, grey)
+
+kME / module_membership (eigengene connectivity)
+
+gene_significance (optional; trait association per gene)
+
+module_eigengenes.csv: samples × modules matrix (one eigengene per module).
+
+module_trait_correlations.csv: modules × traits correlation matrix.
+
+module_trait_pvalues.csv: p-values for the above correlations.
+
+hub_genes/*.csv: top hub genes per module (ranked by connectivity / kME).
+
+figures/
+
+Publication-ready plots from key steps:
+
+sample clustering dendrogram (outlier QC)
+
+soft-threshold selection plots
+
+gene dendrogram with module colors
+
+module–trait correlation heatmap
+
+eigengene network

@@ -1,0 +1,76 @@
+==========================
+FILE: docs/INPUT_FILES.md
+==========================
+
+# Input files
+
+This pipeline expects **two input CSV files**:
+
+1) **Expression matrix** (RNA-seq counts or microarray expression)
+2) **Sample metadata** (phenotype / condition labels and optional covariates)
+
+---
+
+## 1) Expression matrix CSV
+
+### ✅ Required format (recommended)
+- **Rows = samples**
+- **Columns = genes/features**
+- **Index/first column = sample IDs**
+- **Header row = gene IDs** (gene symbol, Ensembl ID, probe ID, etc.)
+- **RNA-seq**: raw **integer** counts (no negative values)
+- **Microarray**: normalized expression values (float). If you provide raw intensities, enable quantile normalization in the pipeline.
+
+### Example (`data/example_counts_rnaseq.csv`)
+```csv
+sample_id,TP53,GAPDH,ACTB
+S1,120,52340,18120
+S2,98,50110,17540
+S3,140,53580,19010
+S4,110,49870,16980
+
+If your file is genes × samples
+
+Some GEO matrices are genes in rows and samples in columns. Convert once:
+
+import pandas as pd
+
+counts = pd.read_csv("counts_genes_x_samples.csv", index_col=0).T
+counts.index.name = "sample_id"
+counts.to_csv("counts_samples_x_genes.csv")
+
+## 2) Sample metadata CSV
+✅ Required format
+
+Rows = samples
+
+Index/first column = sample IDs (must match the expression matrix sample IDs)
+
+Must contain your group column (e.g., GSM_Label or Gsm_label) used to define case vs control.
+
+Optional columns (age/sex/batch/etc.) can be used as covariates.
+
+Example (data/example_metadata.csv)
+sample_id,GSM_Label,age,sex,batch
+S1,Disease,55,M,1
+S2,Disease,62,F,1
+S3,Control,49,F,1
+S4,Control,58,M,2
+
+Column mapping used in the script
+
+You will typically pass:
+
+group_column: the column to split cohorts (e.g., GSM_Label)
+
+case_label: value in group_column treated as "case" (e.g., Disease)
+
+control_label: value in group_column treated as "control" (e.g., Control)
+
+Notes / Common pitfalls
+
+Sample IDs must match exactly between the count matrix index and metadata index.
+
+Avoid duplicate sample IDs.
+
+For RNA-seq, do not input TPM/FPKM here. Use raw counts for DESeq2-style modeling.
